@@ -4,6 +4,7 @@ namespace BlazorComponent;
 
 public partial class BMobilePickerView<TColumn, TColumnItem, TColumnItemValue> : BDomComponentBase
 {
+
     [Parameter, EditorRequired]
     public virtual List<TColumn> Columns { get; set; } = null!;
 
@@ -76,10 +77,17 @@ public partial class BMobilePickerView<TColumn, TColumnItem, TColumnItemValue> :
 
     private string? _dataType;
     private List<TColumn>? _prevColumns;
-    private string? _prevValue;
+    private List<TColumnItemValue>? _preValue;
     private List<TColumnItemValue> _value = new();
 
     private List<TColumnItemValue> InternalValue { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        _preValue = Value;
+    }
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
@@ -98,10 +106,9 @@ public partial class BMobilePickerView<TColumn, TColumnItem, TColumnItemValue> :
 
         var isChanged = false;
 
-        var valueStr = JsonSerializer.Serialize(Value);
-        if (_prevValue != valueStr)
+        if (_preValue == null || !_preValue.SequenceEqual(Value))
         {
-            _prevValue = valueStr;
+            _preValue = [..Value];
             InternalValue = Value.ToList();
 
             isChanged = true;
@@ -284,7 +291,7 @@ public partial class BMobilePickerView<TColumn, TColumnItem, TColumnItemValue> :
 
         if (ValueChanged.HasDelegate)
         {
-            _prevValue = JsonSerializer.Serialize(InternalValue);
+            _preValue = [..InternalValue];
             await ValueChanged.InvokeAsync(InternalValue.ToList());
         }
 

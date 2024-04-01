@@ -42,10 +42,15 @@ function() {
 
     public async Task SetItemAsync<TValue>(string key, TValue value)
     {
-        var json = JsonSerializer.Serialize(value);
+        await SetItemAsync(key, value, null);
+    }
+
+    public async Task SetItemAsync<TValue>(string key, TValue value, JsonSerializerOptions? jsonSerializerOptions)
+    {
+        var json = JsonSerializer.Serialize(value, jsonSerializerOptions);
         await SetItemAsync(key, json);
     }
-    
+
     public async Task<string?> GetItemAsync(string key)
     {
         return await _jsRuntime.InvokeAsync<string?>("eval", $"({GET_ITEM_SCRIPT})('{key}')");
@@ -53,14 +58,19 @@ function() {
 
     public async Task<T?> GetItemAsync<T>(string key)
     {
-        var value = await GetItemAsync(key);
-
-        return value == null ? default : JsonSerializer.Deserialize<T>(value);
+        return await GetItemAsync<T>(key, null);
     }
 
-    public async Task RemoveItemAsync(string key, string value)
+    public async Task<T?> GetItemAsync<T>(string key, JsonSerializerOptions? jsonSerializerOptions)
     {
-        await _jsRuntime.InvokeVoidAsync("eval", $"({REMOVE_ITEM_SCRIPT})('{key}', '{value}')");
+        var value = await GetItemAsync(key);
+
+        return value == null ? default : JsonSerializer.Deserialize<T>(value, jsonSerializerOptions);
+    }
+
+    public async Task RemoveItemAsync(string key)
+    {
+        await _jsRuntime.InvokeVoidAsync("eval", $"({REMOVE_ITEM_SCRIPT})('{key}')");
     }
 
     public async Task ClearAsync()

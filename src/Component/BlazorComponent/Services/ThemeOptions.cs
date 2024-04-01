@@ -20,8 +20,6 @@ public class ThemeOptions
     public string? OnAccent { get; set; }
 
     public string? Error { get; set; }
-    
-    public string? OnError { get; set; }
 
     public string? Info { get; set; }
 
@@ -47,6 +45,8 @@ public class Theme
     public bool Dark { get; set; }
 
     public Themes Themes { get; }
+    
+    public ThemeOptions CurrentTheme => Dark ? Themes.Dark : Themes.Light;
 }
 
 public class Themes

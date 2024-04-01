@@ -158,6 +158,11 @@ export function addHtmlElementEventListener<K extends keyof HTMLElementTagNameMa
     htmlElement = document.querySelector(selector);
   }
 
+  if (!htmlElement) {
+    // throw new Error("Unable to find the element.");
+    return false;
+  }
+
   var key = extras?.key || `${selector}:${type}`;
 
   //save for remove
@@ -223,9 +228,9 @@ export function addHtmlElementEventListener<K extends keyof HTMLElementTagNameMa
     htmlElementEventListenerConfigs[key] = [config]
   }
 
-  if (htmlElement) {
-    htmlElement.addEventListener(type, config.listener, config.options);
-  }
+  htmlElement.addEventListener(type, config.listener, config.options);
+
+  return true;
 }
 
 export function removeHtmlElementEventListener(selector, type, k?: string) {
@@ -1159,7 +1164,7 @@ function otpInputKeyupEvent(e: KeyboardEvent, otpIdx: number, elementList, callb
         value: ''
       }
       if (callback) {
-        callback.invokeMethodAsync('Invoke', JSON.stringify(obj));
+        callback.invokeMethodAsync('Invoke', obj);
       }
     }
     otpInputFocus(otpIdx - 1, elementList);
@@ -1204,7 +1209,7 @@ function otpInputOnInputEvent(e: Event, otpIdx: number, elementList, callback) {
         index: otpIdx,
         value: value
       }
-      callback.invokeMethodAsync('Invoke', JSON.stringify(obj));
+      callback.invokeMethodAsync('Invoke', obj);
     }
   }
 }
@@ -1308,6 +1313,10 @@ export function get_top_domain() {
 }
 
 export function setCookie(name, value) {
+  if (value === null || value === undefined) {
+    return;
+  }
+
   var domain = get_top_domain();
   if (!domain) {
     domain = '';
@@ -1519,4 +1528,8 @@ export function addStopPropagationEvent(el: any, type: keyof HTMLElementEventMap
 export function removeStopPropagationEvent(el: any, type: keyof HTMLElementEventMap) {
   const dom = getDom(el);
   dom.removeEventListener(type, stopPropagation);
+}
+
+export function historyBack() {
+  history.back();
 }
